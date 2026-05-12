@@ -2,6 +2,10 @@
 
 A Python-based utility for flashing firmware over the CAN bus using a USB-CAN adapter (Canable/CandleLight with candleLight firmware) or over serial using USB-UART adapter.
 
+<p align="center">
+  <img src="img/logo.png" alt="CAN Flash Tool Logo" width="600"/>
+</p>
+
 ## Overview
 
 This tool implements an adaptation of the **STM32 UART bootloader protocol** for CAN communication, where each byte is transmitted as a single CAN frame (DLC=1) — essentially "UART over CAN." It provides both a graphical user interface and a Python API for all bootloader operations.
