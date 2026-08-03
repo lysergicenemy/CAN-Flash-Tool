@@ -77,20 +77,119 @@ class ChipInfo:
 
 
 CHIP_DATABASE: dict[int, ChipInfo] = {
-    0x0444: ChipInfo("GD32E230",  page_size=0x400,  pages=16),   # 16 KB
-    0x0448: ChipInfo("GD32F103",  page_size=0x400,  pages=64),   # 64 KB
-    0x0442: ChipInfo("GD32F303CB",  page_size=0x800,  pages=64), # 128 KB
-    0x0410: ChipInfo("STM32F103", page_size=0x400,  pages=64),   # 64 KB
-    0x0441: ChipInfo("GD32E103",  page_size=0x400,  pages=64),   # 64 KB
-    0x0430: ChipInfo("GD32F130",  page_size=0x400,  pages=32),   # 32 KB
-    0x0446: ChipInfo("GD32F450",  page_size=0x800,  pages=256),  # 512 KB
-    0x0450: ChipInfo("GD32E508",  page_size=0x800,  pages=128),  # 256 KB
-    0x0452: ChipInfo("GD32VF103", page_size=0x400,  pages=64),   # 64 KB
-    0x0449: ChipInfo("GD32F101",  page_size=0x400,  pages=32),   # 32 KB
-    0x0443: ChipInfo("GD32F103C", page_size=0x400,  pages=128),  # 128 KB
-    0x0420: ChipInfo("STM32F407", page_size=0x800,  pages=256),  # 512 KB
-    0x0434: ChipInfo("STM32F030", page_size=0x400,  pages=32),   # 32 KB
-    0x0447: ChipInfo("GD32F105",  page_size=0x400,  pages=64),   # 64 KB
+    # ── User defined PID ────────────────────────────────────────────────
+    0x0A10: ChipInfo("GD32E230x4",      page_size=0x400, pages=16),    # 16 KB
+    0x0A11: ChipInfo("GD32E230x6",      page_size=0x400, pages=32),    # 32 KB
+    0x0A21: ChipInfo("GD32F30x(B)",     page_size=0x800, pages=64),    # 128 KB
+    0x0A22: ChipInfo("GD32F30x(C)",     page_size=0x800, pages=128),   # 256 KB
+    0x0A32: ChipInfo("GD32F425xE",      page_size=0x800, pages=256),   # 512 KB
+    # ── STM32 series C0 ─────────────────────────────────────────────────
+    0x0443: ChipInfo("STM32C011xx",     page_size=0x400, pages=16),    # 16 KB
+    0x0453: ChipInfo("STM32C031xx",     page_size=0x400, pages=32),    # 32 KB
+    0x044C: ChipInfo("STM32C051xx",     page_size=0x400, pages=64),    # 64 KB
+    0x0493: ChipInfo("STM32C071xx",     page_size=0x400, pages=128),   # 128 KB
+    0x044D: ChipInfo("STM32C091xx/92xx", page_size=0x400, pages=256),  # 256 KB
+    # ── STM32 series C5 ─────────────────────────────────────────────────
+    0x044E: ChipInfo("STM32C55xxx/562xx", page_size=0x800, pages=512), # 512 KB
+    0x044F: ChipInfo("STM32C53xxx/542xx", page_size=0x800, pages=256), # 256 KB
+    0x045A: ChipInfo("STM32C5A3xx/59xxx", page_size=0x800, pages=512), # 512 KB
+    # ── STM32 series F0 ─────────────────────────────────────────────────
+    0x0440: ChipInfo("STM32F05xxx/F030x8", page_size=0x400, pages=32), # 32 KB
+    0x0444: ChipInfo("STM32F03xx4/6",     page_size=0x400, pages=32),  # 32 KB
+    0x0442: ChipInfo("STM32F030xC/F09xxx", page_size=0x400, pages=64), # 64 KB
+    0x0445: ChipInfo("STM32F04xxx/F070x6", page_size=0x400, pages=32), # 32 KB
+    0x0448: ChipInfo("STM32F070xB/F071xx", page_size=0x400, pages=64), # 64 KB
+    # ── STM32 series F1 ─────────────────────────────────────────────────
+    0x0412: ChipInfo("STM32F10xxx LD",    page_size=0x400, pages=64),  # 64 KB
+    0x0410: ChipInfo("STM32F10xxx MD",    page_size=0x400, pages=128), # 128 KB
+    0x0414: ChipInfo("STM32F10xxx HD",    page_size=0x400, pages=256), # 256 KB
+    0x0420: ChipInfo("STM32F10xxx MD VL", page_size=0x400, pages=64),  # 64 KB
+    0x0428: ChipInfo("STM32F10xxx HD VL", page_size=0x400, pages=256), # 256 KB
+    0x0418: ChipInfo("STM32F105xx/107xx", page_size=0x400, pages=256), # 256 KB
+    0x0430: ChipInfo("STM32F10xxx XL",    page_size=0x800, pages=384), # 768 KB
+    # ── STM32 series F2 ─────────────────────────────────────────────────
+    0x0411: ChipInfo("STM32F2xxxx",       page_size=0x800, pages=256), # 512 KB
+    # ── STM32 series F3 ─────────────────────────────────────────────────
+    0x0432: ChipInfo("STM32F373xx/378xx", page_size=0x800, pages=64),  # 128 KB
+    0x0422: ChipInfo("STM32F302xB(C)/303xB(C)/358xx", page_size=0x800, pages=64),  # 128 KB
+    0x0439: ChipInfo("STM32F301xx/302x4(6/8)/318xx", page_size=0x800, pages=32),   # 64 KB
+    0x0438: ChipInfo("STM32F303x4(6/8)/334xx/328xx",  page_size=0x800, pages=32),   # 64 KB
+    0x0446: ChipInfo("STM32F302xD(E)/303xD(E)/398xx", page_size=0x800, pages=128),  # 256 KB
+    # ── STM32 series F4 ─────────────────────────────────────────────────
+    0x0413: ChipInfo("STM32F40xxx/41xxx", page_size=0x800, pages=256), # 512 KB
+    0x0419: ChipInfo("STM32F42xxx/43xxx", page_size=0x800, pages=512), # 1 MB
+    0x0423: ChipInfo("STM32F401xB(C)",    page_size=0x800, pages=64),  # 128 KB
+    0x0433: ChipInfo("STM32F401xD(E)",    page_size=0x800, pages=192), # 384 KB
+    0x0458: ChipInfo("STM32F410xx",       page_size=0x800, pages=32),  # 64 KB
+    0x0431: ChipInfo("STM32F411xx",       page_size=0x800, pages=128), # 256 KB
+    0x0441: ChipInfo("STM32F412xx",       page_size=0x800, pages=256), # 512 KB
+    0x0421: ChipInfo("STM32F446xx",       page_size=0x800, pages=128), # 256 KB
+    0x0434: ChipInfo("STM32F469xx/479xx", page_size=0x800, pages=512), # 1 MB
+    0x0463: ChipInfo("STM32F413xx/423xx", page_size=0x800, pages=384), # 768 KB
+    # ── STM32 series F7 ─────────────────────────────────────────────────
+    0x0452: ChipInfo("STM32F72xxx/73xxx", page_size=0x2000, pages=256), # 512 KB
+    0x0449: ChipInfo("STM32F74xxx/75xxx", page_size=0x2000, pages=256), # 512 KB
+    0x0451: ChipInfo("STM32F76xxx/77xxx", page_size=0x2000, pages=512), # 1 MB
+    # ── STM32 series G0 ─────────────────────────────────────────────────
+    0x0466: ChipInfo("STM32G03xxx/04xxx", page_size=0x400, pages=32),   # 32 KB
+    0x0456: ChipInfo("STM32G05xxx/061xx", page_size=0x400, pages=32),   # 32 KB
+    0x0460: ChipInfo("STM32G07xxx/08xxx", page_size=0x400, pages=128),  # 128 KB
+    0x0467: ChipInfo("STM32G0B0xx/B1xx/0C1xx", page_size=0x800, pages=256), # 512 KB
+    # ── STM32 series G4 ─────────────────────────────────────────────────
+    0x0468: ChipInfo("STM32G431xx/441xx", page_size=0x800, pages=64),   # 128 KB
+    0x0469: ChipInfo("STM32G47xxx/48xxx", page_size=0x800, pages=128),  # 256 KB
+    0x0479: ChipInfo("STM32G491xx/A1xx",  page_size=0x800, pages=128),  # 256 KB
+    # ── STM32 series H5 ─────────────────────────────────────────────────
+    0x0474: ChipInfo("STM32H503xx",       page_size=0x2000, pages=32),  # 256 KB
+    0x0484: ChipInfo("STM32H562xx/563xx/573xx", page_size=0x2000, pages=256), # 1 MB
+    0x0478: ChipInfo("STM32H523xx/533xx", page_size=0x2000, pages=128), # 512 KB
+    0x047A: ChipInfo("STM32H5Ex/5Fx",     page_size=0x2000, pages=512), # 2 MB
+    # ── STM32 series H7 ─────────────────────────────────────────────────
+    0x0483: ChipInfo("STM32H72xxx/73xxx", page_size=0x2000, pages=256), # 1 MB (dual bank)
+    0x0450: ChipInfo("STM32H74xxx/75xxx", page_size=0x2000, pages=512), # 2 MB (dual bank)
+    0x0480: ChipInfo("STM32H7A3xx/7B3xx/7B0xx", page_size=0x2000, pages=512), # 2 MB
+    0x0485: ChipInfo("STM32H7Rxxx/7Sxxx", page_size=0x2000, pages=512), # 2 MB
+    # ── STM32 series L0 ─────────────────────────────────────────────────
+    0x0457: ChipInfo("STM32L01xxx/02xxx", page_size=0x400, pages=8),    # 8 KB
+    0x0425: ChipInfo("STM32L031xx/041xx", page_size=0x400, pages=32),   # 32 KB
+    0x0417: ChipInfo("STM32L05xxx/06xxx", page_size=0x400, pages=32),   # 32 KB
+    0x0447: ChipInfo("STM32L07xxx/08xxx", page_size=0x400, pages=64),   # 64 KB
+    # ── STM32 series L1 ─────────────────────────────────────────────────
+    0x0416: ChipInfo("STM32L1xxx6(8/B)",  page_size=0x400, pages=64),   # 64 KB
+    0x0429: ChipInfo("STM32L1xxx6(8/B)A", page_size=0x400, pages=128),  # 128 KB
+    0x0427: ChipInfo("STM32L1xxxC",       page_size=0x400, pages=128),  # 128 KB
+    0x0436: ChipInfo("STM32L1xxxD",       page_size=0x400, pages=192),  # 192 KB
+    0x0437: ChipInfo("STM32L1xxxE",       page_size=0x400, pages=256),  # 256 KB
+    # ── STM32 series L4 ─────────────────────────────────────────────────
+    0x0464: ChipInfo("STM32L412xx/422xx", page_size=0x800, pages=64),   # 128 KB
+    0x0435: ChipInfo("STM32L43xxx/44xxx", page_size=0x800, pages=128),  # 256 KB
+    0x0462: ChipInfo("STM32L45xxx/46xxx", page_size=0x800, pages=256),  # 512 KB
+    0x0415: ChipInfo("STM32L47xxx/48xxx", page_size=0x800, pages=128),  # 256 KB
+    0x0461: ChipInfo("STM32L496xx/4A6xx", page_size=0x800, pages=256),  # 512 KB
+    0x0470: ChipInfo("STM32L4Rxx/4Sxx",   page_size=0x800, pages=512),  # 1 MB
+    0x0471: ChipInfo("STM32L4P5xx/Q5xx",  page_size=0x800, pages=256),  # 512 KB
+    # ── STM32 series L5 ─────────────────────────────────────────────────
+    0x0472: ChipInfo("STM32L552xx/562xx", page_size=0x800, pages=256),  # 512 KB
+    # ── STM32 series U0 ─────────────────────────────────────────────────
+    0x0459: ChipInfo("STM32U031xx",       page_size=0x400, pages=32),   # 32 KB
+    0x0489: ChipInfo("STM32U073xx/83xx",  page_size=0x400, pages=128),  # 128 KB
+    # ── STM32 series U3 ─────────────────────────────────────────────────
+    0x0454: ChipInfo("STM32U375xx/385xx", page_size=0x800, pages=256),  # 512 KB
+    0x042A: ChipInfo("STM32U3B5xx/3C5xx", page_size=0x800, pages=512),  # 1 MB
+    # ── STM32 series U5 ─────────────────────────────────────────────────
+    0x0455: ChipInfo("STM32U535xx/545xx", page_size=0x800, pages=256),  # 512 KB
+    0x0482: ChipInfo("STM32U575xx/585xx", page_size=0x800, pages=512),  # 1 MB
+    0x0481: ChipInfo("STM32U595xx/599xx/5A9xx", page_size=0x800, pages=512), # 1 MB
+    0x0476: ChipInfo("STM32U5F7xx/5F9xx/5G7xx/5G9xx", page_size=0x800, pages=512), # 1 MB
+    # ── STM32 series WB ────────────────────────────────────────────────
+    0x0494: ChipInfo("STM32WB10xx/15xx",  page_size=0x800, pages=64),   # 128 KB
+    0x0495: ChipInfo("STM32WB30xx/35xx/50xx/WB55xx", page_size=0x800, pages=128), # 256 KB
+    # ── STM32 series WBA ───────────────────────────────────────────────
+    0x04B2: ChipInfo("STM32WBA2xxx",      page_size=0x2000, pages=64),  # 512 KB
+    0x0492: ChipInfo("STM32WBA5xxx",      page_size=0x2000, pages=64),  # 512 KB
+    0x04B0: ChipInfo("STM32WBA62xx/63xx/64xx/65xx", page_size=0x2000, pages=256), # 2 MB
+    # ── STM32 series WL ────────────────────────────────────────────────
+    0x0497: ChipInfo("STM32WLE5xx/WL55xx", page_size=0x800, pages=64),  # 128 KB
 }
 
 

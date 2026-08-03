@@ -53,12 +53,19 @@ if %errorlevel% neq 0 (
     )
 )
 
+echo [INFO] Cleaning previous build...
+if exist dist rmdir /s /q dist 2>nul
+if exist build rmdir /s /q build 2>nul
+if exist "CAN_Flash_Tool.spec" del /f /q "CAN_Flash_Tool.spec" 2>nul
+echo.
+
 echo [INFO] Starting build...
 echo.
 
 :: Сборка единого exe файла
 python3 -m PyInstaller --onefile --noconsole ^
     --name "CAN_Flash_Tool" ^
+    --icon can_flash_icon.ico ^
     --add-data "azure.tcl;." ^
     --add-data "theme;theme" ^
     --hidden-import can ^
