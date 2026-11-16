@@ -82,7 +82,7 @@ CHIP_DATABASE: dict[int, ChipInfo] = {
     0x0A11: ChipInfo("GD32E230x6",      page_size=0x400, pages=32),    # 32 KB
     0x0A21: ChipInfo("GD32F30x(B)",     page_size=0x800, pages=64),    # 128 KB
     0x0A22: ChipInfo("GD32F30x(C)",     page_size=0x800, pages=128),   # 256 KB
-    0x0A32: ChipInfo("GD32F425xE",      page_size=0x800, pages=256),   # 512 KB
+    0x0A32: ChipInfo("GD32F425xE",      page_size=0x1000, pages=128),   # 512 KB
     # ── STM32 series C0 ─────────────────────────────────────────────────
     0x0443: ChipInfo("STM32C011xx",     page_size=0x400, pages=16),    # 16 KB
     0x0453: ChipInfo("STM32C031xx",     page_size=0x400, pages=32),    # 32 KB
@@ -581,7 +581,7 @@ DEFAULT_BITRATE = 250000
 # Inter-byte spacing (milliseconds) — small delay between each CAN frame sent
 # to prevent saturating the CAN bus during bootloader operations.
 # Other devices on the bus will still be able to communicate.
-SEND_INTERVAL_MS = 2
+SEND_INTERVAL_MS = 1
 
 
 class CANBootloader(BaseBootloader):

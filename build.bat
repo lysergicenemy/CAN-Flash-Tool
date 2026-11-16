@@ -53,6 +53,14 @@ if %errorlevel% neq 0 (
     )
 )
 
+:: Закрыть запущенные экземпляры приложения, чтобы освободить заблокированный exe
+tasklist /FI "IMAGENAME eq CAN_Flash_Tool.exe" 2>nul | find /I "CAN_Flash_Tool.exe" >nul
+if %errorlevel% equ 0 (
+    echo [WARN] CAN_Flash_Tool.exe is running. Closing it...
+    taskkill /F /IM CAN_Flash_Tool.exe >nul 2>&1
+    timeout /t 1 /nobreak >nul
+)
+
 echo [INFO] Cleaning previous build...
 if exist dist rmdir /s /q dist 2>nul
 if exist build rmdir /s /q build 2>nul

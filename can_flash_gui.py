@@ -69,6 +69,10 @@ logger = logging.getLogger(__name__)
 # Suppress noisy python-can log messages
 logging.getLogger('can').setLevel(logging.ERROR)
 
+# Maximum number of lines kept in the log widget. Bounds redraw and
+# window-resize cost (a Text widget re-lays out every line on resize).
+MAX_LOG_LINES = 2000
+
 # ─── ToolTip helper ───────────────────────────────────────────────────────────
 
 class _ToolTip:
@@ -234,7 +238,6 @@ class CANFlashToolGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("CAN Flash Tool")
-        self.root.geometry("800x650")
         self.root.minsize(700, 550)
 
         # State
@@ -270,6 +273,14 @@ class CANFlashToolGUI:
 
         # Build UI
         self._build_ui()
+
+        # Size the window to fit the built content. Text/font metrics can be
+        # larger on scaled/high-DPI displays, so clamp to a comfortable minimum
+        # instead of a hardcoded "800x650" set before the widgets existed.
+        self.root.update_idletasks()
+        win_w = max(800, self.root.winfo_reqwidth())
+        win_h = max(650, self.root.winfo_reqheight())
+        self.root.geometry(f"{win_w}x{win_h}")
 
         # Close handler
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
@@ -544,23 +555,33 @@ class CANFlashToolGUI:
         log_text_frame = ttk.Frame(log_frame)
         log_text_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.log_text = tk.Text(log_text_frame, height=10, wrap=tk.WORD,
+        # wrap=NONE avoids re-wrapping the whole log on every window resize,
+        # which is the main cause of resize lag with a growing Text widget.
+        self.log_text = tk.Text(log_text_frame, height=10, wrap=tk.NONE,
                                 bg="#1e1e1e", fg="#d4d4d4",
                                 insertbackground="white",
                                 font=("Consolas", 9))
-        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.log_text.grid(row=0, column=0, sticky="nsew")
 
         log_scroll = ttk.Scrollbar(log_text_frame, orient=tk.VERTICAL,
                                    command=self.log_text.yview)
-        log_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        log_scroll.grid(row=0, column=1, sticky="ns")
         self.log_text.config(yscrollcommand=log_scroll.set)
+
+        log_hscroll = ttk.Scrollbar(log_text_frame, orient=tk.HORIZONTAL,
+                                    command=self.log_text.xview)
+        log_hscroll.grid(row=1, column=0, sticky="ew")
+        self.log_text.config(xscrollcommand=log_hscroll.set)
+
+        log_text_frame.rowconfigure(0, weight=1)
+        log_text_frame.columnconfigure(0, weight=1)
 
         self.log_text.tag_configure("info", foreground="#d4d4d4")
         self.log_text.tag_configure("ok", foreground="#4ec9b0")
         self.log_text.tag_configure("error", foreground="#f44747")
         self.log_text.tag_configure("warn", foreground="#dcdcaa")
 
-        self.log("CAN Flash Tool v1.0 ready", "info")
+        self.log("CAN Flash Tool v1.1 ready", "info")
 
         # ─── Initial button states ────────────────────────────────────────────
         self._set_controls_state(connected=False)
@@ -838,8 +859,13 @@ class CANFlashToolGUI:
     # ─── Logging ───────────────────────────────────────────────────────────────
 
     def log(self, message: str, tag: str = "info"):
-        """Add a message to the log panel."""
+        """Add a message to the log panel (keeps the last MAX_LOG_LINES lines)."""
         self.log_text.insert(tk.END, f"{message}\n", tag)
+        # Trim oldest lines so the widget stays bounded (redraw/resize cost).
+        # 'end-1c' lands on Tk's trailing empty line, so subtract it (-1).
+        line_count = int(self.log_text.index("end-1c").split(".")[0]) - 1
+        if line_count > MAX_LOG_LINES:
+            self.log_text.delete("1.0", f"{line_count - MAX_LOG_LINES + 1}.0")
         self.log_text.see(tk.END)
 
     # ─── State management ──────────────────────────────────────────────────────
@@ -878,10 +904,14 @@ class CANFlashToolGUI:
         self.browse_btn.config(state="normal")
 
     def _update_progress(self, value: int, status: str):
-        """Update progress bar and status text (thread-safe)."""
+        """Update progress bar and status text (thread-safe).
+
+        Always called on the main thread via root.after(0, ...), so the event
+        loop redraws on its own; an explicit update_idletasks() only adds
+        synchronous redraw overhead during long operations.
+        """
         self.progress_var.set(value)
         self.status_label.config(text=status)
-        self.root.update_idletasks()
 
     # ─── Ping monitor ──────────────────────────────────────────────────────────
 
@@ -1112,10 +1142,14 @@ class CANFlashToolGUI:
                         self.info_vars["flash_page"].set(f"{_format_size(ci.page_size)}"))
                     self.root.after(0, lambda sz=total_flash:
                         self.info_vars["flash_size"].set(_format_size(sz)))
-                    FLASH_BASE = 0x08000000
-                    default_start = FLASH_BASE + cinfo.page_size
-                    self.root.after(0, lambda a=default_start:
-                        self.start_addr_var.set(f"0x{a:08X}"))
+                    # Only apply the default Start Addr (FLASH_BASE + page_size)
+                    # when no HEX is loaded; otherwise keep the firmware start
+                    # address that was taken from the HEX file.
+                    if self.hex_path is None:
+                        FLASH_BASE = 0x08000000
+                        default_start = FLASH_BASE + cinfo.page_size
+                        self.root.after(0, lambda a=default_start:
+                            self.start_addr_var.set(f"0x{a:08X}"))
 
                 self.connected = True
                 self.root.after(0, self._set_controls_state, True)
@@ -1304,6 +1338,13 @@ class CANFlashToolGUI:
                 self.hex_data = ih
                 self.hex_segments = segments
                 self.hex_total_size = total
+
+                # Auto-fill Start Addr from the firmware start address in the HEX
+                if segments:
+                    start = segments[0][0]
+                    self.start_addr_var.set(f"0x{start:08X}")
+                    self.log(f"  Start Addr set to 0x{start:08X} (from HEX)", "info")
+
                 self.log(f"  Segments: {segments}", "info")
                 self.log(f"  Total size: {_format_size(total)}", "info")
             except Exception as e:
@@ -1648,6 +1689,18 @@ class CANFlashToolGUI:
 
 def main():
     import argparse
+
+    # Enable Windows DPI awareness so Tk renders crisp (non-blurry) text on
+    # high-DPI / scaled displays instead of being bitmap-stretched by the OS.
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            ctypes.windll.shcore.SetProcessDpiAwareness(1)
+        except (AttributeError, OSError):
+            try:
+                ctypes.windll.user32.SetProcessDPIAware()
+            except (AttributeError, OSError):
+                pass
 
     parser = argparse.ArgumentParser(description="CAN Flash Tool GUI")
     parser.add_argument("--sim", action="store_true",
